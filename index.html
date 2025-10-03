@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrollChipsS Leia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #1e90ff;
+      --primary-dark: #1c86ee;
+      --primary-light: #63b3ff;
+      --secondary: #0d0d0d;
+      --background: #001f3f;
+      --background-light: #003366;
+      --card: #00264d;
+      --text-primary: #f0f0f0;
+      --text-secondary: #b0b0b0;
+      --text-muted: #808080;
+      --border: #333333;
+      --glow: rgba(30, 144, 255, 0.5);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--background), var(--secondary));
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container { width: 100%; max-width: 500px; }
+    .logo-section { text-align: center; margin-bottom: 2rem; }
+    .logo {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 20px var(--glow);
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.2rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--primary-light), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { color: var(--text-secondary); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    .input-with-icon { position: relative; }
+    input, select {
+      width: 100%; padding: 0.75rem 1rem;
+      background: var(--background-light);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem; color: var(--text-primary);
+    }
+    .btn {
+      width: 100%; padding: 1rem; border-radius: 0.75rem;
+      font-weight: 600; cursor: pointer; margin-top: 0.5rem;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-primary); }
+    .modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+    }
+    .modal-content {
+      background: var(--card); padding: 2rem; border-radius: 1rem;
+      max-width: 600px; width: 100%;
+    }
+    .credits-section { text-align: center; margin-top: 2rem; font-size: 0.9rem; }
+    .credits-section a { color: var(--primary-light); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-section">
+      <img src="https://trollchipss.netlify.app/logo-trollchips.png" alt="TrollChipsS" class="logo">
+      <h1>TrollChipsS Leia</h1>
+      <p class="subtitle">Sistema de Leitura Automática</p>
+    </div>
+    <div class="card">
+      <div class="form-group">
+        <label for="ra">RA do Aluno</label>
+        <input type="text" id="ra" placeholder="Ex: 123456789sp">
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <div class="input-with-icon">
+          <input type="password" id="senha" placeholder="Sua senha">
+          <button class="toggle-password" id="togglePassword" type="button"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Fazer Login</button>
+      <button class="btn btn-secondary" id="savedAccountsBtn"><i class="fas fa-users"></i> Contas Salvas</button>
+      <button class="btn btn-secondary" id="openBookModalBtn" style="display:none;"><i class="fas fa-book"></i> Livros e Atividades</button>
+    </div>
+  </div>
+
+  <!-- Status/Login Feedback -->
+  <div style="margin-top:1rem;text-align:center;">
+    <span id="statusMessage"></span>
+  </div>
+
+  <!-- Modais que o script precisa -->
+  <div class="modal" id="bookSelectionModal"><div class="modal-content"><h2>Livros</h2><div id="bookList"></div></div></div>
+  <div class="modal" id="savedAccountsModal"><div class="modal-content"><h2>Contas Salvas</h2><div id="savedAccountsList"></div></div></div>
+  <div class="modal" id="timeConfigModal"><div class="modal-content"><h2>Configuração de Tempo</h2><div id="timeConfigOptions"></div></div></div>
+  <div class="modal" id="progressModal"><div class="modal-content"><h2>Progresso</h2><div id="progressContainer"></div></div></div>
+
+  <div class="credits-section">
+    Feito por bis <a href="https://discord.com/invite/yXYKSZAK9Z" target="_blank">Discord CMSP Hacks</a>
+  </div>
+
+  <!-- Script original -->
+  <script>const session = { arvore_token: null, userId: null, readerId: null, foundBooks: [], selectedBook: null, readBooksFetched: false };
+const executionConfig = {
+    action: null,
+    minReadTime: 10, maxReadTime: 45,
+    minAnswerTime: 10, maxAnswerTime: 30,
+    accuracy: 100,
+    pagesToRead: -1
+};
+let currentFilter = 'all';
+
+function closeNotification(notificationElement) {
+    notificationElement.classList.remove('show');
+    setTimeout(() => { notificationElement.remove(); }, 400);
+}
+
+function showNotification(message, duration = 5000) {
+    const container = document.getElementById('notificationsContainer');
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = `<p>${message}</p><div class="progressbar" style="animation-duration: ${duration}ms;"></div>`;
+    notification.onclick = () => closeNotification(notification);
+    container.prepend(notification);
+    setTimeout(() => { notification.classList.add('show'); }, 10);
+    setTimeout(() => closeNotification(notification), duration);
+}
+
+function updateProgress(title, message, percentage) {
+    console.log('updateProgress chamada:', title, message, percentage);
+    document.getElementById('progressModal').style.display = 'flex';
+    if (title === 'Lendo Livro') {
+        message = 'Lendo Livro...';
+    }
+    document.getElementById('progressModalTitle').innerText = title;
+    const messageElement = document.getElementById('progressModalMessage');
+    messageElement.innerText = message;
+    messageElement.style.display = message ? 'block' : 'none';
+    const percentageRounded = Math.round(percentage);
+    document.getElementById('progressBarFill').style.width = `${percentageRounded}%`;
+    document.getElementById('progressPercentageText').innerText = `${percentageRounded}%`;
+    console.log('Progress modal atualizado');
+}
+
+function hideProgress() {
+    document.getElementById('progressModal').style.display = 'none';
+}
+
+function limparConsoleContinuamente(intervalo = 100) {
+    const limpar = () => { console.clear(); setTimeout(limpar, intervalo); };
+    limpar();
+}
+
+async function makeApiRequest(url, options, responseType = 'json') {
+    console.log('makeApiRequest chamada:', url);
+    console.log('options:', options);
+    try {
+        const response = await fetch(url, options);
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response text:', responseText.substring(0, 200) + '...');
+        if (responseType === 'text') return responseText;
+        try { 
+            const parsed = JSON.parse(responseText);
+            console.log('Parsed response:', parsed);
+            return parsed;
+        } catch (e) { 
+            console.error("API response was not valid JSON:", responseText);
+            return { errors: [{ message: 'Server response was not valid JSON.' }], content: responseText, status: response.status }; 
+        }
+    } catch (error) { console.error('Fetch Error:', error); throw error; }
+}
+
+async function getAuthToken(login, senha) {
+    updateProgress('AutenticaÃ§Ã£o', 'Verificando credenciais...', 25);
+    const response = await makeApiRequest('https://prefeituragov.biscurim.space/api/registration/edusp', {
+        method: 'POST', headers: { 'accept': '*/*', 'content-type': 'application/json', 'x-api-platform': 'webclient', 'x-api-realm': 'edusp' },
+        body: JSON.stringify({ realm: 'edusp', platform: 'webclient', id: login, password: senha })
+    });
+    if (!response.auth_token) throw new Error('Credenciais invÃ¡lidas ou falha na autenticaÃ§Ã£o.');
+    return response.auth_token;
+}
+
+async function getJwtToken(auth_token) {
+    updateProgress('AutenticaÃ§Ã£o', 'Obtendo token JWT...', 50);
+    const response = await makeApiRequest('https://prefeituragov.biscurim.space/api/mas/external-auth/seducsp_token/generate?card_label=LeiaSP+', {
+        method: 'GET', headers: { 'accept': 'application/json', 'x-api-key': auth_token, 'x-api-platform': 'webclient', 'x-api-realm': 'edusp' }
+    });
+    if (!response.token) throw new Error('Falha ao gerar o token JWT.');
+    return response.token;
+}
+
+async function requestArvore(token) {
+    updateProgress('AutenticaÃ§Ã£o', 'Conectando Ã  plataforma Ãrvore...', 75);
+    try {
+        const response = await makeApiRequest(`https://prefeituragov.biscurim.space/api/auth/sso/seduc_sp?token=${token}`, {}, 'json');
+        if (response.jwt) return response.jwt;
+        throw new Error('Token JWT final nÃ£o encontrado na resposta da Ãrvore.');
+    } catch (error) { throw new Error("Falha de conexÃ£o com a Ãrvore (erro de CORS)."); }
+}
+
+async function getUserInfo(token) {
+    updateProgress('AutenticaÃ§Ã£o', 'Buscando informaÃ§Ãµes do usuÃ¡rio...', 90);
+    const response = await makeApiRequest('https://prefeituragov.biscurim.space/api/graphql', {
+        method: 'POST', headers: { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}` },
+        body: JSON.stringify({ operationName: "UserBasicInfos", variables: {}, query: `query UserBasicInfos { me { id, reader { id } } }` })
+    });
+    if (response.data?.me?.id && response.data?.me?.reader?.id) {
+        return { userId: response.data.me.id, readerId: response.data.me.reader.id };
+    }
+    throw new Error('SessÃ£o expirada ou informaÃ§Ãµes do usuÃ¡rio nÃ£o encontradas.');
+}
+
+async function searchBooksApi(token, searchTerm) {
+    updateProgress('Buscando Livros', 'Carregando lista de livros...', 50);
+    const response = await makeApiRequest('https://prefeituragov.biscurim.space/api/books/search', {
+        method: 'POST', headers: { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}` },
+        body: JSON.stringify({ searchTerm: searchTerm, perPage: 100 })
+    });
+    if (response.data?.searchBookV3?.books) return response.data.searchBookV3.books;
+    throw new Error('Nenhum livro encontrado ou erro na busca.');
+}
+
+async function fetchReadBooksApi(token) {
+    updateProgress('Buscando Livros Lidos', 'Carregando histÃ³rico...', 70);
+    const response = await makeApiRequest('https://prefeituragov.biscurim.space/api/books/read', {
+        method: 'POST',
+        headers: { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}` },
+        body: JSON.stringify({ isReading: false, first: 100 })
+    });
+    if (response.data?.me?.reader?.relayPaginatedViewedBooks?.edges) {
+        return response.data.me.reader.relayPaginatedViewedBooks.edges.map(edge => edge.node.book);
+    }
+    console.log('Nenhum livro lido encontrado ou erro na busca de lidos.');
+    return [];
+}
+
+async function getBookActivities(token, bookSlug, readerId) {
+    updateProgress('Buscando Atividades', `Verificando atividades...`, 50);
+    const response = await makeApiRequest(`https://prefeituragov.biscurim.space/api/books/${bookSlug}/activities`, {
+        method: 'POST', headers: { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}`, 'Referer': 'https://e-reader.arvore.com.br/' },
+        body: JSON.stringify({ readerId: parseInt(readerId) })
+    });
+    const activity = response.data?.listEmbeddedInBookActivity;
+    if (activity) {
+        if (activity.questions.length === 0) { showNotification('Este livro nÃ£o possui atividades para responder.'); return null; }
+        return activity;
+    }
+    showNotification('Nenhuma atividade encontrada para este livro.'); return null;
+}
+
+function getDelay(min, max) {
+    const minMs = min * 1000;
+    const maxMs = max * 1000;
+    return Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+}
+
+async function answerQuestions(token, activity) {
+    let sucessos = 0, erros = 0, jaRespondidas = 0;
+    const total = activity.questions.length;
+    const activityHeaders = { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}`, 'Referer': 'https://e-reader.arvore.com.br/' };
+    
+    updateProgress('Respondendo Atividades', 'Criando sessÃ£o...', 0);
+    const createResponse = await makeApiRequest('https://prefeituragov.biscurim.space/api/graphql', { 
+        method: 'POST', headers: activityHeaders, 
+        body: JSON.stringify({ operationName: "createAppliedActivityAnswer", variables: { appliedActivityId: activity.id }, query: `mutation createAppliedActivityAnswer($appliedActivityId: Int!) { createAppliedActivityAnswer(appliedActivityId: $appliedActivityId) { id } }` }) 
+    });
+
+    if (createResponse.errors || !createResponse.data?.createAppliedActivityAnswer?.id) { throw new Error("Falha ao criar sessÃ£o. O livro pode jÃ¡ ter sido iniciado."); }
+    const appliedActivityAnswerId = createResponse.data.createAppliedActivityAnswer.id;
+    const accuracyThreshold = executionConfig.accuracy / 100;
+
+    for (const [index, question] of activity.questions.entries()) {
+        const progress = ((index + 1) / total) * 100;
+        updateProgress('Respondendo Atividades', `Processando questÃ£o ${index + 1} de ${total}...`, progress);
+
+        if (question.answer?.isCorrect === true) { jaRespondidas++; continue; }
+        if (!question.choices || question.choices.length === 0) continue;
+
+        try {
+            const shouldAnswerCorrectly = Math.random() < accuracyThreshold;
+            if (shouldAnswerCorrectly) {
+                const discoverResponse = await makeApiRequest('https://prefeituragov.biscurim.space/api/graphql', { 
+                    method: 'POST', headers: activityHeaders, 
+                    body: JSON.stringify({ operationName: "setChoiceIdAnswer", variables: { appliedActivityAnswerId, examQuestionId: question.id, examQuestionChoiceId: question.choices[0].id }, query: `mutation setChoiceIdAnswer($appliedActivityAnswerId: Int!, $examQuestionChoiceId: Int!, $examQuestionId: Int!) { setChoiceIdAnswer(appliedActivityAnswerId: $appliedActivityAnswerId, examQuestionChoiceId: $examQuestionChoiceId, examQuestionId: $examQuestionId) { correctAnswerId } }` }) 
+                });
+                if (discoverResponse.errors?.[0]?.message === "maximum number of retries reached") { jaRespondidas++; continue; }
+                if (discoverResponse.errors) throw new Error(discoverResponse.errors[0].message);
+                const correctAnswerId = discoverResponse.data?.setChoiceIdAnswer?.correctAnswerId;
+                if (correctAnswerId) {
+                    const finalResponse = await makeApiRequest('https://prefeituragov.biscurim.space/api/graphql', { 
+                        method: 'POST', headers: activityHeaders, 
+                        body: JSON.stringify({ operationName: "setChoiceIdAnswer", variables: { appliedActivityAnswerId, examQuestionId: question.id, examQuestionChoiceId: correctAnswerId }, query: `mutation setChoiceIdAnswer($appliedActivityAnswerId: Int!, $examQuestionChoiceId: Int!, $examQuestionId: Int!) { setChoiceIdAnswer(appliedActivityAnswerId: $appliedActivityAnswerId, examQuestionChoiceId: $examQuestionChoiceId, examQuestionId: $examQuestionId) { isCorrect } }` }) 
+                    });
+                    if (finalResponse.data?.setChoiceIdAnswer?.isCorrect) { sucessos++; } else { erros++; }
+                } else { erros++; }
+            } else {
+                const response = await makeApiRequest('https://prefeituragov.biscurim.space/api/graphql', { 
+                    method: 'POST', headers: activityHeaders, 
+                    body: JSON.stringify({ operationName: "setChoiceIdAnswer", variables: { appliedActivityAnswerId, examQuestionId: question.id, examQuestionChoiceId: question.choices[0].id }, query: `mutation setChoiceIdAnswer($appliedActivityAnswerId: Int!, $examQuestionChoiceId: Int!, $examQuestionId: Int!) { setChoiceIdAnswer(appliedActivityAnswerId: $appliedActivityAnswerId, examQuestionChoiceId: $examQuestionChoiceId, examQuestionId: $examQuestionId) { isCorrect } }` }) 
+                });
+                if(response.data?.setChoiceIdAnswer?.isCorrect) { sucessos++ } else { erros++ }
+            }
+        } catch (error) { erros++; console.error(`Erro na questÃ£o ${question.id}:`, error); }
+        await new Promise(r => setTimeout(r, getDelay(executionConfig.minAnswerTime, executionConfig.maxAnswerTime)));
+    }
+    hideProgress();
+    showNotification(`Resumo: ${sucessos} acerto(s), ${erros} erro(s), ${jaRespondidas} jÃ¡ respondida(s).`);
+}
+
+async function markBookAsReadApi(token, bookSlug) {
+    updateProgress('Finalizando', 'Marcando livro como lido...', 95);
+    const response = await makeApiRequest(`https://prefeituragov.biscurim.space/api/books/${bookSlug}/mark-read`, {
+        method: 'POST', headers: { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}`},
+        body: JSON.stringify({})
+    });
+    if (response.data?.markBookAsRead?.status !== 'read') { throw new Error('Falha ao marcar o livro como lido.'); }
+}
+
+async function startReadingProcess(token, bookSlug, pagesToRead = -1) {
+    console.log('startReadingProcess iniciada');
+    console.log('token:', token);
+    console.log('bookSlug:', bookSlug);
+    console.log('pagesToRead:', pagesToRead);
+    
+    try {
+        updateProgress('Lendo Livro', '', 0);
+        console.log('Fazendo requisiÃ§Ã£o para obter informaÃ§Ãµes do livro...');
+        const book = await makeApiRequest(`https://prefeituragov.biscurim.space/api/leitor/api_mobile/book/${bookSlug}`, { headers: { 'authorization': `Bearer ${token}`, 'accept': 'application/json' } });
+        console.log('Resposta do livro:', book);
+        const bookId = book?.viewed_book_id;
+        if (!bookId) throw new Error('NÃ£o foi possÃ­vel obter viewed_book_id.');
+        const isEpub = (book?.file_extension || '').toLowerCase() === 'epub';
+        const SCALE = isEpub ? 100 : 1;
+        const locators = Array.isArray(book?.book_content_summaries) ? book.book_content_summaries : null;
+        let totalPages = locators?.length || book?.maxPages || 120;
+        
+        const loopLimit = (pagesToRead > 0) ? Math.min(totalPages, pagesToRead) : totalPages;
+        
+        let prev = 0;
+        for (let i = 0; i < loopLimit; i++) {
+            const progress = ((i + 1) / loopLimit) * 100;
+            updateProgress('Lendo Livro', '', progress);
+            const targetFinal = ((i + 1) / totalPages) * SCALE;
+            const initialPercentage = prev;
+            const finalPercentage = Math.min(SCALE, targetFinal);
+            const locator = locators?.[i]?.resume_element_locator || book?.colibrio_last_locator || '';
+            const payload = { content: JSON.stringify([{ slug: bookSlug, initial_percentage: initialPercentage, final_percentage: finalPercentage, percentage: finalPercentage, resume_element_locator: locator, time_spent: Math.floor(Math.random() * 11) + 9, viewed_book_id: bookId, words_per_minute: Math.floor(Math.random() * 800) + 300, offline: false }]) };
+            try {
+                await makeApiRequest('https://prefeituragov.biscurim.space/api/leitor/api/register_pages', {
+                    method: 'POST', headers: { 'accept': '*/*', 'content-type': 'application/json', 'authorization': `Bearer ${token}`, 'origin': 'https://e-reader.arvore.com.br', 'referer': 'https://e-reader.arvore.com.br/', 'dnt': '1' },
+                    body: JSON.stringify(payload)
+                }, 'text');
+            } catch (e) { console.error('register_pages falhou pÃ¡g', i + 1, e); }
+            prev = finalPercentage;
+            if (prev >= (SCALE - 0.001)) break;
+            await new Promise(r => setTimeout(r, getDelay(executionConfig.minReadTime, executionConfig.maxReadTime)));
+        }
+        await markBookAsReadApi(token, bookSlug);
+        hideProgress();
+        showNotification('âœ… Livro lido e finalizado com sucesso!');
+        const read = JSON.parse(localStorage.getItem('readBooks') || '[]');
+        if (!read.includes(bookSlug)) { read.push(bookSlug); localStorage.setItem('readBooks', JSON.stringify(read)); }
+        return true;
+    } catch (err) {
+        hideProgress();
+        showNotification(`Erro durante a leitura: ${err.message}`, 9000);
+        return false;
+    }
+}
+
+function getSavedAccounts() { return JSON.parse(localStorage.getItem('savedAccounts') || '[]'); }
+function saveAccounts(accounts) { localStorage.setItem('savedAccounts', JSON.stringify(accounts)); }
+
+function renderBooks(bookList) {
+    const container = document.getElementById('bookListContainer');
+    container.innerHTML = '';
+    if (bookList.length === 0) {
+        container.innerHTML = '<p style="text-align: center; margin-top: 1rem;">Nenhum livro corresponde Ã  busca/filtro.</p>';
+        return;
+    }
+    const readBooks = JSON.parse(localStorage.getItem('readBooks') || '[]');
+    bookList.forEach(book => {
+        const isRead = readBooks.includes(book.slug);
+        const statusClass = isRead ? 'read' : 'pending';
+        const statusText = isRead ? 'Lido' : 'Pendente';
+        const item = document.createElement('button');
+        item.className = 'book-item';
+        item.dataset.slug = book.slug;
+        item.innerHTML = `<div class="book-status-indicator ${statusClass}">${statusText}</div><img src="${book.imageUrlThumb}" alt="Capa"><div class="book-info"><span class="book-title">${book.name}</span><span class="book-author">${book.author || 'Autor desconhecido'}</span></div>`;
+        container.appendChild(item);
+    });
+}
+
+function updateBookListDisplay() {
+    const searchTerm = document.getElementById('bookSearchInputInModal').value.toLowerCase();
+    const readBooks = JSON.parse(localStorage.getItem('readBooks') || '[]');
+    let filteredBooks = session.foundBooks.filter(book => book.name.toLowerCase().includes(searchTerm) || (book.author && book.author.toLowerCase().includes(searchTerm)));
+    if (currentFilter === 'read') {
+        filteredBooks = filteredBooks.filter(book => readBooks.includes(book.slug));
+    } else if (currentFilter === 'unread') {
+        filteredBooks = filteredBooks.filter(book => !readBooks.includes(book.slug));
+    }
+    renderBooks(filteredBooks);
+}
+
+function displaySavedAccounts() {
+    const accounts = getSavedAccounts();
+    const container = document.getElementById('savedAccountsList');
+    container.innerHTML = '';
+    if (accounts.length === 0) { container.innerHTML = '<p style="text-align: center;">Nenhuma conta salva.</p>'; return; }
+    accounts.forEach((account, index) => {
+        const item = document.createElement('div');
+        item.className = 'saved-account-item';
+        item.innerHTML = `<div class="account-info"> <span class="account-ra">${account.ra}</span> </div><div class="account-actions"><button data-index="${index}" class="use-account">Usar</button><button data-index="${index}" class="delete-account delete">Deletar</button></div>`;
+        container.appendChild(item);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('loginBtn');
+    const openBookModalBtn = document.getElementById('openBookModalBtn');
+    const savedAccountsBtn = document.getElementById('savedAccountsBtn');
+    const bookModal = document.getElementById('bookSelectionModal');
+    const savedAccountsModal = document.getElementById('savedAccountsModal');
+    const timeConfigModal = document.getElementById('timeConfigModal');
+    const bookListContainer = document.getElementById('bookListContainer');
+
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const senhaInput = document.getElementById('senha');
+        const eyeIcon = this.querySelector('i');
+        senhaInput.type = senhaInput.type === 'password' ? 'text' : 'password';
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+
+    loginBtn.addEventListener('click', async () => {
+        const raInput = document.getElementById('ra');
+        const senhaInput = document.getElementById('senha');
+        if (!raInput.value || !senhaInput.value) { return showNotification('Por favor, preencha o RA e a senha.');}
+        loginBtn.disabled = true; loginBtn.innerHTML = 'Logando...';
+        try {
+            const auth_token = await getAuthToken(raInput.value, senhaInput.value);
+            const jwt_token = await getJwtToken(auth_token);
+            session.arvore_token = await requestArvore(jwt_token);
+            const userInfo = await getUserInfo(session.arvore_token);
+            session.userId = userInfo.userId; session.readerId = userInfo.readerId;
+            hideProgress(); showNotification('Login realizado com sucesso!');
+            let accounts = getSavedAccounts();
+            if (!accounts.some(acc => acc.ra === raInput.value)) { accounts.push({ ra: raInput.value, senha: senhaInput.value }); saveAccounts(accounts); }
+            document.querySelector('.form-group:has(#ra)').style.display = 'none';
+            document.querySelector('.form-group:has(#senha)').style.display = 'none';
+            loginBtn.style.display = 'none';
+            savedAccountsBtn.style.display = 'none';
+            openBookModalBtn.style.display = 'flex';
+        } catch (error) {
+            hideProgress(); showNotification(`Falha no login: ${error.message}`);
+        } finally {
+            loginBtn.disabled = false; loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Fazer Login';
+        }
+    });
+
+    openBookModalBtn.addEventListener('click', async () => {
+        updateProgress('Buscando Livros', 'Aguarde...', 0);
+        try {
+            const books = await searchBooksApi(session.arvore_token, "");
+            session.foundBooks = books;
+            updateBookListDisplay();
+            hideProgress();
+            bookModal.style.display = 'flex';
+        } catch (error) { hideProgress(); showNotification(`Erro ao carregar livros: ${error.message}`); }
+    });
+
+    savedAccountsBtn.addEventListener('click', () => { displaySavedAccounts(); savedAccountsModal.style.display = 'flex'; });
+    document.getElementById('savedAccountsList').addEventListener('click', (e) => {
+        const target = e.target;
+        const index = target.dataset.index;
+        if (index === undefined) return;
+        let accounts = getSavedAccounts();
+        if (target.classList.contains('use-account')) {
+            document.getElementById('ra').value = accounts[index].ra;
+            document.getElementById('senha').value = accounts[index].senha;
+            savedAccountsModal.style.display = 'none';
+            loginBtn.click();
+        } else if (target.classList.contains('delete-account')) {
+            accounts.splice(index, 1);
+            saveAccounts(accounts);
+            displaySavedAccounts();
+        }
+    });
+
+    document.getElementById('closeBookModalBtn').addEventListener('click', () => { bookModal.style.display = 'none'; });
+    document.getElementById('closeSavedAccountsBtn').addEventListener('click', () => { savedAccountsModal.style.display = 'none'; });
+    document.getElementById('closeTimeConfigBtn').addEventListener('click', () => { timeConfigModal.style.display = 'none'; });
+    
+    document.getElementById('bookSearchInputInModal').addEventListener('input', updateBookListDisplay);
+    
+    document.getElementById('customReadStatusFilter').addEventListener('click', async (e) => {
+        if (e.target.classList.contains('filter-option')) {
+            document.querySelectorAll('#customReadStatusFilter .filter-option').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.dataset.filter;
+    
+            if (currentFilter === 'read' && !session.readBooksFetched) {
+                try {
+                    const newReadBooks = await fetchReadBooksApi(session.arvore_token);
+                    if (newReadBooks.length > 0) {
+                        const bookMap = new Map();
+                        session.foundBooks.forEach(book => bookMap.set(book.slug, book));
+                        newReadBooks.forEach(book => bookMap.set(book.slug, book));
+                        session.foundBooks = Array.from(bookMap.values());
+    
+                        const locallyStoredReadSlugs = JSON.parse(localStorage.getItem('readBooks') || '[]');
+                        const readSlugsFromServer = newReadBooks.map(b => b.slug);
+                        const combinedSlugs = new Set([...locallyStoredReadSlugs, ...readSlugsFromServer]);
+                        localStorage.setItem('readBooks', JSON.stringify(Array.from(combinedSlugs)));
+                    }
+                    session.readBooksFetched = true;
+                    hideProgress();
+                } catch (error) {
+                    hideProgress();
+                    showNotification(`Erro ao buscar livros lidos: ${error.message}`);
+                }
+            }
+            updateBookListDisplay();
+        }
+    });
+
+    bookListContainer.addEventListener('click', (e) => {
+        const clickedItem = e.target.closest('.book-item');
+        if (!clickedItem) return;
+
+        document.querySelectorAll('.book-item.selected').forEach(item => item.classList.remove('selected'));
+        clickedItem.classList.add('selected');
+        
+        const slug = clickedItem.dataset.slug;
+        session.selectedBook = session.foundBooks.find(b => b.slug === slug);
+        
+        console.log('Livro selecionado:', session.selectedBook);
+        console.log('Slug do livro:', slug);
+        
+        const readBooks = JSON.parse(localStorage.getItem('readBooks') || '[]');
+        const isRead = readBooks.includes(slug);
+
+        document.getElementById('modalActionButtons').style.display = isRead ? 'none' : 'flex';
+        document.getElementById('bookCompletedMessage').style.display = isRead ? 'block' : 'none';
+    });
+
+    function openTimeConfigModal(action) {
+        console.log('openTimeConfigModal chamada com action:', action);
+        console.log('session.selectedBook:', session.selectedBook);
+        if (!session.selectedBook) return showNotification('Nenhum livro selecionado.');
+        executionConfig.action = action;
+        document.getElementById('readingTimeConfigSection').style.display = (action.includes('read')) ? 'block' : 'none';
+        document.getElementById('answeringTimeConfigSection').style.display = (action.includes('answer')) ? 'block' : 'none';
+        timeConfigModal.style.display = 'flex';
+    }
+
+    document.getElementById('startReadingBtn').addEventListener('click', () => openTimeConfigModal('read'));
+    document.getElementById('answerActivityBtn').addEventListener('click', () => openTimeConfigModal('answer'));
+    document.getElementById('readAndAnswerBtn').addEventListener('click', () => openTimeConfigModal('read_answer'));
+
+    async function executeConfiguredAction() {
+        console.log('executeConfiguredAction chamada');
+        console.log('executionConfig.action:', executionConfig.action);
+        console.log('session.selectedBook:', session.selectedBook);
+        console.log('session.arvore_token:', session.arvore_token);
+        
+        timeConfigModal.style.display = 'none';
+        bookModal.style.display = 'none';
+
+        const handleAnswering = async () => {
+            try {
+                const activity = await getBookActivities(session.arvore_token, session.selectedBook.slug, session.readerId);
+                if (activity) await answerQuestions(session.arvore_token, activity);
+            } catch (error) { hideProgress(); showNotification(`Erro ao processar atividades: ${error.message}`); }
+        };
+
+        switch (executionConfig.action) {
+            case 'read':
+                console.log('Iniciando leitura...');
+                await startReadingProcess(session.arvore_token, session.selectedBook.slug, executionConfig.pagesToRead);
+                break;
+            case 'answer':
+                console.log('Iniciando resposta de atividades...');
+                await handleAnswering();
+                break;
+            case 'read_answer':
+                console.log('Iniciando leitura e resposta...');
+                const readSuccess = await startReadingProcess(session.arvore_token, session.selectedBook.slug, executionConfig.pagesToRead);
+                if (readSuccess) { await handleAnswering(); }
+                break;
+        }
+    }
+    
+    document.getElementById('startExecutionBtn').addEventListener('click', () => {
+        executionConfig.minReadTime = parseInt(document.getElementById('minReadTime').value) || 10;
+        executionConfig.maxReadTime = parseInt(document.getElementById('maxReadTime').value) || 45;
+        executionConfig.minAnswerTime = parseInt(document.getElementById('minAnswerTime').value) || 10;
+        executionConfig.maxAnswerTime = parseInt(document.getElementById('maxAnswerTime').value) || 30;
+        executionConfig.accuracy = parseInt(document.getElementById('accuracyPercentage').value) || 100;
+        executionConfig.pagesToRead = -1;
+        executeConfiguredAction();
+    });
+
+     document.getElementById('startInstantExecutionBtn').addEventListener('click', (e) => {
+        console.log('BotÃ£o de execuÃ§Ã£o instantÃ¢nea clicado!', e);
+        console.log('ExecuÃ§Ã£o instantÃ¢nea clicada!');
+        console.log('session.selectedBook antes:', session.selectedBook);
+        console.log('session.arvore_token antes:', session.arvore_token);
+        
+        executionConfig.minReadTime = 0.1;
+        executionConfig.maxReadTime = 0.2;
+        executionConfig.minAnswerTime = 0.1;
+        executionConfig.maxAnswerTime = 0.2;
+        executionConfig.accuracy = parseInt(document.getElementById('accuracyPercentage').value) || 100;
+        executionConfig.pagesToRead = -1;
+        
+        console.log('ConfiguraÃ§Ãµes definidas:', executionConfig);
+        executeConfiguredAction();
+    });
+});</script>
+</body>
+  </html>
