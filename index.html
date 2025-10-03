@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrollChipsS Leia</title>
+    
+    <!-- Fontes e ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Variáveis CSS do tema TrollChipsS */
+        :root {
+            --primary: #1e90ff;
+            --primary-dark: #1c86ee;
+            --primary-light: #63b3ff;
+            --primary-ultra-light: #cce4ff;
+            --secondary: #0d0d0d;
+            --secondary-light: #1a1a1a;
+            --background: #001f3f;
+            --background-light: #003366;
+            --card: #00264d;
+            --card-hover: #003366;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            --success: #48bb78;
+            --error: #f56565;
+            --warning: #ed8936;
+            --info: #63b3ff;
+            --border: #333333;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.5);
+            --glow: rgba(30, 144, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--background), var(--secondary));
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px var(--glow);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--background-light);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--glow);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .buttons-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .books-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--background-light);
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .book-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .book-item.selected {
+            border-color: var(--primary);
+            background-color: rgba(30, 144, 255, 0.1);
+        }
+
+        .book-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .book-status {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.3rem;
+            display: inline-block;
+        }
+
+        .status-read {
+            background-color: rgba(72, 187, 120, 0.2);
+            color: var(--success);
+        }
+
+        .status-unread {
+            background-color: rgba(237, 137, 54, 0.2);
+            color: var(--warning);
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .modal-actions .btn {
+            width: auto;
+            flex: 1;
+            min-width: 120px;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .time-config-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: var(--background-light);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .time-config-section h3 {
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .time-inputs .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .time-config-warning {
+            background-color: rgba(237, 137, 54, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: var(--warning);
+        }
+
+        /* Progress Modal */
+        .progress-modal-content {
+            text-align: center;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--background-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Notificações */
+        .notifications-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+        }
+
+        .notification {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--info);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification.error {
+            border-left-color: var(--error);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Credits Section */
+        .credits-section {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .credits-section a {
+            color: var(--primary-light);
+            text-decoration: none;
+            margin-left: 0.5rem;
+        }
+
+        .credits-section a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .time-inputs {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Container de Notificações -->
+    <div class="notifications-container" id="notificationsContainer"></div>
+
+    <!-- Modal de Seleção de Livros -->
+    <div class="modal" id="bookSelectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Selecionar Livro</h3>
+                <button class="close-modal" id="closeBookModalBtn">×</button>
+            </div>
+            
+            <div class="books-list" id="bookListContainer">
+                <!-- Os livros serão carregados aqui -->
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="startReadingBtn">
+                    <i class="fas fa-book-open"></i> Ler Livro
+                </button>
+                <button class="btn btn-secondary" id="readAndAnswerBtn">
+                    <i class="fas fa-tasks"></i> Ler e Responder
+                </button>
+                <button class="btn btn-secondary" id="answerActivityBtn">
+                    <i class="fas fa-pencil-alt"></i> Responder Atividades
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuração de Tempo -->
+    <div class="modal" id="timeConfigModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Configurar Ação</h3>
+                <button class="close-modal" id="closeTimeConfigBtn">×</button>
+            </div>
+            
+            <div class="time-config-section">
+                <h3><i class="fas fa-book-open"></i> Tempo de Leitura</h3>
+                <div class="time-inputs">
+                    <div class="form-group">
+                        <label for="minReadTime">Mínimo (seg)</label>
+                        <input type="number" id="minReadTime" class="form-control" value="10" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxReadTime">Máximo (seg)</label>
+                        <input type="number" id="maxReadTime" class="form-control" value="45" min="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="time-config-section">
+                <h3><i class="fas fa-pencil-alt"></i> Atividades</h3>
+                <div class="time-inputs">
+                    <div class="form-group">
+                        <label for="minAnswerTime">Mín. por Questão (seg)</label>
+                        <input type="number" id="minAnswerTime" class="form-control" value="10" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxAnswerTime">Máx. por Questão (seg)</label>
+                        <input type="number" id="maxAnswerTime" class="form-control" value="30" min="1">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="accuracyPercentage">Porcentagem de Acerto</label>
+                    <select id="accuracyPercentage" class="form-control">
+                        <option value="100" selected>100% (Máximo)</option>
+                        <option value="85">85% (Recomendado)</option>
+                        <option value="50">50% (Mínimo)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="time-config-warning">
+                O tempo escolhido será aplicado a cada página ou questão. Para pular o atraso, use a opção instantânea.
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="startExecutionBtn">
+                    <i class="fas fa-play"></i> Iniciar com Atraso
+                </button>
+                <button class="btn btn-secondary" id="startInstantExecutionBtn">
+                    <i class="fas fa-bolt"></i> Execução Instantânea
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Progresso -->
+    <div class="modal" id="progressModal">
+        <div class="modal-content progress-modal-content">
+            <div class="spinner"></div>
+            <h3 id="progressModalTitle">Processando...</h3>
+            <p id="progressModalMessage"></p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <span id="progressPercentageText">0%</span>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <div class="logo-section">
+            <img src="https://trollchipss.netlify.app/logo-trollchips.png" alt="TrollChipsS" class="logo">
+            <h1>TrollChipsS Leia</h1>
+            <p class="subtitle">Sistema de Leitura Automática</p>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="ra">RA do Aluno</label>
+                <input type="text" id="ra" placeholder="Ex: 123456789sp" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <div class="input-with-icon">
+                    <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password">
+                    <button class="toggle-password" id="togglePassword" type="button">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="buttons-section">
+                <button class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Fazer Login
+                </button>
+                <button class="btn btn-secondary" id="openBookModalBtn" style="display: none;">
+                    <i class="fas fa-book"></i> Livros e Atividades
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="credits-section">
+        <span>Feito por bis</span>
+        <a href="https://discord.com/invite/yXYKSZAK9Z" target="_blank">
+            <span>Discord CMSP Hacks</span>
+        </a>
+    </div>
+
+    <script>
+        // ================= ELEMENTOS DA DOM =================
+        const raInput = document.getElementById('ra');
+        const senhaInput = document.getElementById('senha');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const openBookModalBtn = document.getElementById('openBookModalBtn');
+        const bookSelectionModal = document.getElementById('bookSelectionModal');
+        const bookListContainer = document.getElementById('bookListContainer');
+        const closeBookModalBtn = document.getElementById('closeBookModalBtn');
+        const startReadingBtn = document.getElementById('startReadingBtn');
+        const readAndAnswerBtn = document.getElementById('readAndAnswerBtn');
+        const answerActivityBtn = document.getElementById('answerActivityBtn');
+        const timeConfigModal = document.getElementById('timeConfigModal');
+        const closeTimeConfigBtn = document.getElementById('closeTimeConfigBtn');
+        const startExecutionBtn = document.getElementById('startExecutionBtn');
+        const startInstantExecutionBtn = document.getElementById('startInstantExecutionBtn');
+        const progressModal = document.getElementById('progressModal');
+        const progressModalTitle = document.getElementById('progressModalTitle');
+        const progressModalMessage = document.getElementById('progressModalMessage');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressPercentageText = document.getElementById('progressPercentageText');
+        const notificationsContainer = document.getElementById('notificationsContainer');
+
+        // ================= VARIÁVEIS GLOBAIS =================
+        let currentSelectedBook = null;
+        let isLoggedIn = false;
+
+        // ================= FUNÇÕES DE NOTIFICAÇÃO =================
+        function showNotification(title, message, type = "info", duration = 5000) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            notification.innerHTML = `
+                <div class="notification-title">${title}</div>
+                <div>${message}</div>
+            `;
+            
+            notificationsContainer.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, duration);
+            
+            return notification;
+        }
+
+        // ================= FUNÇÕES DE SIMULAÇÃO =================
+        function simularLivros() {
+            // Esta função simula a busca de livros
+            // Em um sistema real, isso viria de uma API
+            return [
+                {
+                    id: 1,
+                    title: "Matemática - Volume 1",
+                    status: "unread",
+                    pages: 45,
+                    activities: 12
+                },
+                {
+                    id: 2,
+                    title: "Português - Literatura Brasileira",
+                    status: "read",
+                    pages: 38,
+                    activities: 8
+                },
+                {
+                    id: 3,
+                    title: "Ciências - Biologia Celular",
+                    status: "unread",
+                    pages: 52,
+                    activities: 15
+                },
+                {
+                    id: 4,
+                    title: "História - Brasil Colônia",
+                    status: "unread",
+                    pages: 41,
+                    activities: 10
+                },
+                {
+                    id: 5,
+                    title: "Geografia - Geopolítica Mundial",
+                    status: "read",
+                    pages: 36,
+                    activities: 9
+                }
+            ];
+        }
+
+        function exibirLivros() {
+            const livros = simularLivros();
+            bookListContainer.innerHTML = '';
+            
+            livros.forEach(livro => {
+                const bookItem = document.createElement('div');
+                bookItem.className = `book-item ${livro.status === 'read' ? 'selected' : ''}`;
+                bookItem.dataset.bookId = livro.id;
+                
+                bookItem.innerHTML = `
+                    <div class="book-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${livro.title}</div>
+                        <div>
+                            <span class="book-status ${livro.status === 'read' ? 'status-read' : 'status-unread'}">
+                                ${livro.status === 'read' ? 'Lido' : 'Não Lido'}
+                            </span>
+                            <small style="color: var(--text-muted); margin-left: 0.5rem;">
+                                ${livro.pages} páginas • ${livro.activities} atividades
+                            </small>
+                        </div>
+                    </div>
+                `;
+                
+                bookItem.addEventListener('click', () => {
+                    // Remover seleção anterior
+                    document.querySelectorAll('.book-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    
+                    // Selecionar novo livro
+                    bookItem.classList.add('selected');
+                    currentSelectedBook = livro;
+                    
+                    showNotification('Livro Selecionado', `"${livro.title}" selecionado para ação`, 'success');
+                });
+                
+                bookListContainer.appendChild(bookItem);
+            });
+            
+            bookSelectionModal.style.display = 'flex';
+        }
+
+        function simularProcessamento(acao, tempoMin, tempoMax) {
+            progressModal.style.display = 'flex';
+            progressModalTitle.textContent = `Executando ${acao}`;
+            progressModalMessage.textContent = 'Iniciando processo...';
+            
+            let progress = 0;
+            const totalSteps = 10;
+            const stepTime = (Math.random() * (tempoMax - tempoMin) + tempoMin) * 1000 / totalSteps;
+            
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBarFill.style.width = `${progress}%`;
+                progressPercentageText.textContent = `${progress}%`;
+                
+                progressModalMessage.textContent = `Processando... ${progress}% completo`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressModal.style.display = 'none';
+                        showNotification('Processo Concluído', `${acao} finalizado com sucesso!`, 'success');
+                    }, 1000);
+                }
+            }, stepTime);
+        }
+
+        // ================= EVENT LISTENERS =================
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            senhaInput.setAttribute('type', type);
+            togglePasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Login
+        loginBtn.addEventListener('click', () => {
+            const ra = raInput.value.trim();
+            const senha = senhaInput.value.trim();
+            
+            if (!ra || !senha) {
+                showNotification('Erro', 'Preencha RA e senha', 'error');
+                return;
+            }
+            
+            // Simular login
+            showNotification('Login', 'Realizando autenticação...', 'info');
+            
+            setTimeout(() => {
+                isLoggedIn = true;
+                openBookModalBtn.style.display = 'flex';
+                showNotification('Sucesso', 'Login realizado com sucesso!', 'success');
+            }, 1500);
+        });
+
+        // Abrir modal de livros
+        openBookModalBtn.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                showNotification('Erro', 'Faça login primeiro', 'error');
+                return;
+            }
+            
+            exibirLivros();
+        });
+
+        // Fechar modais
+        closeBookModalBtn.addEventListener('click', () => {
+            bookSelectionModal.style.display = 'none';
+        });
+
+        closeTimeConfigBtn.addEventListener('click', () => {
+            timeConfigModal.style.display = 'none';
+        });
+
+        // Ações dos botões do modal de livros
+        startReadingBtn.addEventListener('click', () => {
+            if (!currentSelectedBook) {
+                showNotification('Aviso', 'Selecione um livro primeiro', 'warning');
+                return;
+            }
+            
+            bookSelectionModal.style.display = 'none';
+            timeConfigModal.style.display = 'flex';
+            
+            // Configurar para ação de leitura
+            startExecutionBtn.onclick = () => {
+                const minTime = parseInt(document.getElementById('minReadTime').value) || 10;
+                const maxTime = parseInt(document.getElementById('maxReadTime').value) || 45;
+                
+                timeConfigModal.style.display = 'none';
+                simularProcessamento('Leitura', minTime, maxTime);
+            };
+            
+            startInstantExecutionBtn.onclick = () => {
+                timeConfigModal.style.display = 'none';
+                simularProcessamento('Leitura', 1, 2);
+            };
+        });
+
+        readAndAnswerBtn.addEventListener('click', () => {
+            if (!currentSelectedBook) {
+                showNotification('Aviso', 'Selecione um livro primeiro', 'warning');
+                return;
+            }
+            
+            bookSelectionModal.style.display = 'none';
+            timeConfigModal.style.display = 'flex';
+            
+            // Configurar para ação de leitura e resposta
+            startExecutionBtn.onclick = () => {
+                const minReadTime = parseInt(document.getElementById('minReadTime').value) || 10;
+                const maxReadTime = parseInt(document.getElementById('maxReadTime').value) || 45;
+                const minAnswerTime = parseInt(document.getElementById('minAnswerTime').value) || 10;
+                const maxAnswerTime = parseInt(document.getElementById('maxAnswerTime').value) || 30;
+                
+                timeConfigModal.style.display = 'none';
+                simularProcessamento('Leitura e Resposta', 
+                    Math.min(minReadTime, minAnswerTime), 
+                    Math.max(maxReadTime, maxAnswerTime)
+                );
+            };
+            
+            startInstantExecutionBtn.onclick = () => {
+                timeConfigModal.style.display = 'none';
+                simularProcessamento('Leitura e Resposta', 1, 2);
+            };
+        });
+
+        answerActivityBtn.addEventListener('click', () => {
+            if (!currentSelectedBook) {
+                showNotification('Aviso', 'Selecione um livro primeiro', 'warning');
+                return;
+            }
+            
+            bookSelectionModal.style.display = 'none';
+            timeConfigModal.style.display = 'flex';
+            
+            // Configurar para ação de resposta apenas
+            startExecutionBtn.onclick = () => {
+                const minTime = parseInt(document.getElementById('minAnswerTime').value) || 10;
+                const maxTime = parseInt(document.getElementById('maxAnswerTime').value) || 30;
+                const accuracy = document.getElementById('accuracyPercentage').value;
+                
+                timeConfigModal.style.display = 'none';
+                simularProcessamento('Resposta de Atividades', minTime, maxTime);
+                
+                showNotification('Configuração', `Acuracia definida para ${accuracy}%`, 'info');
+            };
+            
+            startInstantExecutionBtn.onclick = () => {
+                const accuracy = document.getElementById('accuracyPercentage').value;
+                
+                timeConfigModal.style.display = 'none';
+                simularProcessamento('Resposta de Atividades', 1, 2);
+                
+                showNotification('Configuração', `Acuracia definida para ${accuracy}%`, 'info');
+            };
+        });
+
+        // Fechar modais ao clicar fora
+        window.addEventListener('click', (event) => {
+            if (event.target === bookSelectionModal) {
+                bookSelectionModal.style.display = 'none';
+            }
+            if (event.target === timeConfigModal) {
+                timeConfigModal.style.display = 'none';
+            }
+            if (event.target === progressModal) {
+                progressModal.style.display = 'none';
+            }
+        });
+
+        // Foco no campo RA ao carregar a página
+        window.addEventListener('load', () => {
+            raInput.focus();
+        });
+    </script>
+</body>
+</html>
