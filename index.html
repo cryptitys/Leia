@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrollChipsS Leia</title>
+    
+    <!-- Fontes e ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1e90ff;
+            --primary-dark: #1c86ee;
+            --primary-light: #63b3ff;
+            --secondary: #0d0d0d;
+            --background: #001f3f;
+            --background-light: #003366;
+            --card: #00264d;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            --success: #48bb78;
+            --error: #f56565;
+            --warning: #ed8936;
+            --info: #63b3ff;
+            --border: #333333;
+            --glow: rgba(30, 144, 255, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--background), var(--secondary));
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container { width: 100%; max-width: 500px; }
+
+        .logo-section { text-align: center; margin-bottom: 2rem; }
+        .logo {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px var(--glow);
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem; font-weight: 800;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+
+        .input-with-icon { position: relative; }
+        input[type="text"], input[type="password"], input[type="number"], select {
+            width: 100%; padding: 0.75rem 1rem;
+            background-color: var(--background-light);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        input:focus, select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--glow);
+        }
+
+        .toggle-password {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 1.1rem;
+        }
+
+        .buttons-section { display: flex; flex-direction: column; gap: 1rem; }
+        .btn {
+            width: 100%; padding: 1rem 1.5rem; border: none; border-radius: 0.75rem;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-primary); }
+
+        /* Modais */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center; justify-content: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        /* Notificações */
+        .notifications-container {
+            position: fixed; top: 20px; right: 20px; z-index: 10000;
+            display: flex; flex-direction: column; gap: 10px; max-width: 350px;
+        }
+
+        .credits-section { text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted); }
+        .credits-section a { color: var(--primary-light); margin-left: 0.5rem; }
+    </style>
+</head>
+<body>
+    <!-- Notificações -->
+    <div class="notifications-container" id="notificationsContainer"></div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <div class="logo-section">
+            <img src="https://trollchipss.netlify.app/logo-trollchips.png" alt="TrollChipsS" class="logo">
+            <h1>TrollChipsS Leia</h1>
+            <p class="subtitle">Sistema de Leitura Automática</p>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="ra">RA do Aluno</label>
+                <input type="text" id="ra" placeholder="Ex: 123456789sp" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <div class="input-with-icon">
+                    <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password">
+                    <button class="toggle-password" id="togglePassword" type="button">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="buttons-section">
+                <button class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Fazer Login
+                </button>
+                <button class="btn btn-secondary" id="savedAccountsBtn">
+                    <i class="fas fa-users"></i> Contas Salvas
+                </button>
+                <button class="btn btn-secondary" id="openBookModalBtn" style="display: none;">
+                    <i class="fas fa-book"></i> Livros e Atividades
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais do sistema -->
+    <div class="modal" id="bookSelectionModal"><div class="modal-content"></div></div>
+    <div class="modal" id="savedAccountsModal"><div class="modal-content"></div></div>
+    <div class="modal" id="timeConfigModal"><div class="modal-content"></div></div>
+    <div class="modal" id="progressModal"><div class="modal-content"></div></div>
+
+    <div class="credits-section">
+        <span>Feito por bis</span>
+        <a href="https://discord.com/invite/yXYKSZAK9Z" target="_blank">Discord CMSP Hacks</a>
+    </div>
+
+    <!-- Script com TODA a lógica original -->
+    <script src="https://res.cloudinary.com/dcov4pazn/raw/upload/v1759449548/6_b3lor5.js"></script>
+</body>
+</html>
